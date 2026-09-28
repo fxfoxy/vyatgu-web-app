@@ -16,9 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libicu-dev \
         libzip-dev \
         libfcgi-bin \
-    && docker-php-ext-install -j"$(nproc)" pdo_pgsql \
-    && docker-php-ext-install -j"$(nproc)" intl \
-    && docker-php-ext-install -j"$(nproc)" zip \
+        libcurl4-openssl-dev \
+        curl \
+    && docker-php-ext-install -j"$(nproc)" pdo_pgsql intl zip curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Composer берём готовым бинарником из официального образа —

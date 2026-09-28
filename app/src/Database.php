@@ -1,28 +1,27 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace App;
 
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-final class Database
-{
-    public static function connect(): PDO
-    {
-        $host = getenv('DB_HOST') ?: 'postgres';
-        $port = getenv('DB_PORT') ?: '5432';
-        $name = getenv('DB_NAME') ?: 'app';
-        $user = getenv('DB_USER') ?: 'app';
-        $password = getenv('DB_PASSWORD') ?: '';
+final class Database extends Capsule {
+    public static function init(): void {
+        $capsule = new self();
 
-        $dsn = sprintf('pgsql:host=%s;port=%s;dbname=%s', $host, $port, $name);
+        $capsule->addConnection([
+            'driver'    => 'pgsql',
+            'host'      => getenv('DB_HOST') ?: 'postgres',
+            'port'      => '5432',
+            'database'  => getenv('DB_NAME') ?: 'app',
+            'username'  => getenv('DB_USER') ?: 'app',
+            'password'  => getenv('DB_PASSWORD') ?: '',
+            'charset'   => 'utf8',
+            'schema'    => 'public',
+            'prefix'    => '',
+            'sslmode'   => 'prefer', // prefer, disable, allow, require
+       ]);
 
-        return new PDO($dsn, $user, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            // Не ждём дольше 3 секунд, если БД недоступна
-            PDO::ATTR_TIMEOUT => 3,
-        ]);
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
     }
 }

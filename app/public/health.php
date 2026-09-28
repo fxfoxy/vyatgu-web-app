@@ -1,10 +1,8 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use App\Database;
+use App\DatabaseOld;
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -15,7 +13,7 @@ $checks = [
 $httpStatus = 200;
 
 try {
-    Database::connect()->query('SELECT 1');
+    DatabaseOld::connect()->query('SELECT 1');
 } catch (\Throwable $e) {
     $checks['database'] = 'fail';
     $httpStatus = 503;
