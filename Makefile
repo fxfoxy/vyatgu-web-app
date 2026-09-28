@@ -21,6 +21,7 @@ help:
 	@echo "make composer  — composer install внутри php-контейнера"
 	@echo "make sh        — shell в php-контейнере"
 	@echo "make psql      — консоль psql к postgres"
+	@echo "make bb        — собрать backend приложения и накатить миграции"
 
 # Создаёт .env из примера и подставляет реальные UID/GID текущего пользователя,
 # чтобы файлы, которые php-fpm пишет в bind mount (например app/vendor), на Linux-хосте
@@ -66,3 +67,6 @@ sh:
 
 psql:
 	docker compose exec postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
+
+bb:
+	docker compose exec -u www-data php php ./src/console/build-backend.php

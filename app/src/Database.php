@@ -24,4 +24,8 @@ final class Database extends Capsule {
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
     }
+
+    public static function getInstance(): object {
+        return self::$instance;
+    }
 }

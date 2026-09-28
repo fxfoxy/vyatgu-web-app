@@ -3,7 +3,7 @@
 ## Быстрый старт
 
 ```bash
-make init && make up && make composer
+make init && make up && make composer && make bb
 ```
 
 - `make init` создаёт `.env` из `.env.example` и подставляет в него UID/GID
