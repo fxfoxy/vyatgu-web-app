@@ -2,9 +2,8 @@
 
 require __DIR__ . '/../../init.php';
 
-use App\Database;
+use App\Library\Database\Database;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
-
 
 Database::init();
 

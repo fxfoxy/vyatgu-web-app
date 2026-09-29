@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use App\Database;
+use App\Library\Database\Database;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 

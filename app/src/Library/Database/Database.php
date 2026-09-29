@@ -1,11 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace App;
+namespace App\Library\Database;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 final class Database extends Capsule {
     public static function init(): void {
+        if (isset(self::$instance)) {
+            return;
+        }
+
         $capsule = new self();
 
         $capsule->addConnection([

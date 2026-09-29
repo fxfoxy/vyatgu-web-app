@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-require __DIR__ . '/../init.php';
+use App\Library\Database\Database;
+use App\Library\Database\TestUser;
+use App\Library\Super;
 
-use App\Database;
+require __DIR__ . '/../init.php';
 
 $phpVersion = PHP_VERSION;
 $hasPdoPgsql = extension_loaded('pdo_pgsql');
@@ -12,6 +14,7 @@ $dbVersion = null;
 $dbError = null;
 $rows = [];
 
+echo 111;
 try {
     Database::init();
     $dbVersion = Database::select('SELECT version()')[0]->version;
@@ -20,8 +23,9 @@ try {
     $dbError = $e->getMessage();
 }
 
-function h(string $value): string
-{
+Super::logger()->warning('Проверка слуха', $rows);
+
+function h(string $value): string {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 ?>
@@ -79,5 +83,15 @@ function h(string $value): string
     <?php else: ?>
         <p>Нет данных (таблица пуста или БД недоступна).</p>
     <?php endif; ?>
+    <?php
+        /*$user = new TestUser();
+        $user->name = 'Иван';
+        $user->email = 'iva@mail.ru';
+        $user->save();*/
+
+        foreach (TestUser::all() as $user) {
+            echo $user->name, '<br/>';
+        }
+    ?>
 </body>
 </html>

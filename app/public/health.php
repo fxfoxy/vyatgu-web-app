@@ -1,8 +1,8 @@
 <?php declare(strict_types = 1);
 
-require __DIR__ . '/../vendor/autoload.php';
-
 use App\DatabaseOld;
+
+require __DIR__ . '/../init.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
