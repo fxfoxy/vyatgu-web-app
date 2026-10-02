@@ -63,10 +63,11 @@ composer:
 	docker compose exec -u www-data php composer install
 
 sh:
-	docker compose exec php sh
+	docker compose exec php bash
 
 psql:
 	docker compose exec postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
 
 bb:
 	docker compose exec -u www-data php php ./src/console/build-backend.php
+

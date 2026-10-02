@@ -14,9 +14,7 @@ $dbVersion = null;
 $dbError = null;
 $rows = [];
 
-echo 111;
 try {
-    Database::init();
     $dbVersion = Database::select('SELECT version()')[0]->version;
     $rows      = Database::select('SELECT id, created_at, note FROM demo ORDER BY id DESC');
 } catch (Throwable $e) {

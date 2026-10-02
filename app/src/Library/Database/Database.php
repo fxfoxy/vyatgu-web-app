@@ -2,6 +2,7 @@
 
 namespace App\Library\Database;
 
+use App\Library\Super;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 final class Database extends Capsule {
@@ -14,11 +15,11 @@ final class Database extends Capsule {
 
         $capsule->addConnection([
             'driver'    => 'pgsql',
-            'host'      => getenv('DB_HOST') ?: 'postgres',
-            'port'      => '5432',
-            'database'  => getenv('DB_NAME') ?: 'app',
-            'username'  => getenv('DB_USER') ?: 'app',
-            'password'  => getenv('DB_PASSWORD') ?: '',
+            'host'      => Super::config()->host,
+            'port'      => Super::config()->port,
+            'database'  => Super::config()->database,
+            'username'  => Super::config()->username,
+            'password'  => Super::config()->password,
             'charset'   => 'utf8',
             'schema'    => 'public',
             'prefix'    => '',

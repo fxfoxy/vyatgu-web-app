@@ -2,6 +2,8 @@
 
 namespace App\Library;
 
+use App\Library\Config\ApplicationConfig;
+use App\Library\Config\EnvironmentsEnum;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
@@ -23,24 +25,46 @@ final class Super {
     private static ?Logger $logger = null;
 
     public static function logger(): Logger {
-        if (isset(self::$logger)) {
+        if (self::$logger) {
             return self::$logger;
         }
 
+        $lineFormatter = new LineFormatter(self::LOGGER_MESSAGE_FORMAT, self::LOGGER_DATE_FORMAT);
+
         $steamHandler = new StreamHandler(__DIR__ . '/../logs/application.log', Level::Debug);
-        $steamHandler->setFormatter(new LineFormatter(self::LOGGER_MESSAGE_FORMAT, self::LOGGER_DATE_FORMAT));
+        $steamHandler->setFormatter($lineFormatter);
 
         $logger = new Logger('application');
         $logger->pushHandler($steamHandler);
 
+        if (PHP_SAPI === 'cli') {
+            $steamHandler = new StreamHandler(STDERR, Level::Debug);
+            $steamHandler->setFormatter($lineFormatter);
+
+            $logger->pushHandler($steamHandler);
+        }
+
         $logger->pushProcessor(function (LogRecord $record): LogRecord {
-            $messagePrepend = getmypid() . " {$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']} ";
+            $messagePrepend = getmypid() . ' ';
+            if (PHP_SAPI !== 'cli') {
+                $messagePrepend .= "{$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']} ";
+            }
             return $record->with(message: $messagePrepend . $record->message);
         });
         $logger->pushProcessor(new MemoryPeakUsageProcessor());
 
         self::$logger = $logger;
         return self::$logger;
+    }
+
+    private static ?ApplicationConfig $applicationConfig = null;
+
+    public static function config(): ApplicationConfig {
+        if (!self::$applicationConfig) {
+            self::$applicationConfig = ApplicationConfig::getInstance(EnvironmentsEnum::getEnvironment()->value);
+        }
+
+        return self::$applicationConfig;
     }
 
 }

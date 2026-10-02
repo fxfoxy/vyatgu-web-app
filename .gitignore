@@ -1,3 +1,4 @@
 .env
-app/vendor/
-app/src/logs
+/app/vendor
+/app/src/logs
+/.idea/*

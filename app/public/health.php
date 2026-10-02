@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-use App\DatabaseOld;
+use App\Library\Database\Database;
 
 require __DIR__ . '/../init.php';
 
@@ -13,8 +13,8 @@ $checks = [
 $httpStatus = 200;
 
 try {
-    DatabaseOld::connect()->query('SELECT 1');
-} catch (\Throwable $e) {
+    Database::select('SELECT 1');
+} catch (Throwable $e) {
     $checks['database'] = 'fail';
     $httpStatus = 503;
 }

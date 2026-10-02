@@ -7,6 +7,7 @@
       "ext-pdo_pgsql": "*",
       "ext-curl": "*",
       "ext-zip": "*",
+      "ext-openssl": "*",
       "illuminate/database": "^13.0",
       "monolog/monolog": "^3.10"
     },
