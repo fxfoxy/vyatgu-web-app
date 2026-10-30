@@ -2,3 +2,4 @@
 /app/vendor
 /app/src/logs
 /.idea/*
+/app/src/Library/Framework/Routing/Generated/*

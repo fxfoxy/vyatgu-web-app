@@ -70,4 +70,3 @@ psql:
 
 bb:
 	docker compose exec -u www-data php php ./src/console/build-backend.php
-

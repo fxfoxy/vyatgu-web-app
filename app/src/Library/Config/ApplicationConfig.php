@@ -14,7 +14,7 @@ use App\Library\Super;
  * @property string $password
  */
 final class ApplicationConfig {
-    private const string CONFIG_PATH = __DIR__ . '/../../config';
+    private const string CONFIG_PATH = ROOT_DIR . '/config';
 
     private array $configData;
 
@@ -48,7 +48,7 @@ final class ApplicationConfig {
             }
         });
         if ($errors) {
-            Super::logger()->error("Can't initialize config", $errors);
+            Super::log()->error("Can't initialize config", $errors);
         }
 
         return $configData;

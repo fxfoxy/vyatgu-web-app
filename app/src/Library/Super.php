@@ -4,57 +4,21 @@ namespace App\Library;
 
 use App\Library\Config\ApplicationConfig;
 use App\Library\Config\EnvironmentsEnum;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
-use Monolog\Level;
+use App\Library\Framework\CronTaskAbstract;
+use App\Library\Framework\LogHelper;
+use App\Library\Tasks\RemoveOldSessionsCronTask;
 use Monolog\Logger;
-use Monolog\LogRecord;
-use Monolog\Processor\MemoryPeakUsageProcessor;
 
 final class Super {
-    /**
-     * Формат по-умолчанию "Y-m-d\TH:i:sP"
-     */
-    private const string LOGGER_DATE_FORMAT = 'Y-m-d\TH:i:s.u';
+    /** @var Logger[] */
+    private static array $logs = [];
 
-    /**
-     * Формат по-умолчанию "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n"
-     */
-    private const string LOGGER_MESSAGE_FORMAT = "[%datetime%] %level_name%: %message% %context% %extra%\n";
-
-    private static ?Logger $logger = null;
-
-    public static function logger(): Logger {
-        if (self::$logger) {
-            return self::$logger;
+    public static function log(string $logName = 'application'): Logger {
+        if (empty(self::$logs[$logName])) {
+            self::$logs[$logName] = LogHelper::logger($logName);
         }
 
-        $lineFormatter = new LineFormatter(self::LOGGER_MESSAGE_FORMAT, self::LOGGER_DATE_FORMAT);
-
-        $steamHandler = new StreamHandler(__DIR__ . '/../logs/application.log', Level::Debug);
-        $steamHandler->setFormatter($lineFormatter);
-
-        $logger = new Logger('application');
-        $logger->pushHandler($steamHandler);
-
-        if (PHP_SAPI === 'cli') {
-            $steamHandler = new StreamHandler(STDERR, Level::Debug);
-            $steamHandler->setFormatter($lineFormatter);
-
-            $logger->pushHandler($steamHandler);
-        }
-
-        $logger->pushProcessor(function (LogRecord $record): LogRecord {
-            $messagePrepend = getmypid() . ' ';
-            if (PHP_SAPI !== 'cli') {
-                $messagePrepend .= "{$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']} ";
-            }
-            return $record->with(message: $messagePrepend . $record->message);
-        });
-        $logger->pushProcessor(new MemoryPeakUsageProcessor());
-
-        self::$logger = $logger;
-        return self::$logger;
+        return self::$logs[$logName];
     }
 
     private static ?ApplicationConfig $applicationConfig = null;
@@ -67,4 +31,32 @@ final class Super {
         return self::$applicationConfig;
     }
 
+    /**
+     * Получим все задания и выполним по одному
+     */
+    public static function executeAllTasks(): void {
+        /** @var CronTaskAbstract $taskClass */
+        foreach (self::getTaskClasses() as $taskClass) {
+            $task = new $taskClass();
+            if ($task instanceof CronTaskAbstract) {
+                $task->executeInternal();
+            }
+            unset($task);
+        }
+    }
+
+    private static function getTaskClasses(): array {
+        $classes = [];
+
+        /** @see RemoveOldSessionsCronTask Magic usage */
+        $namespace = 'App\Library\Tasks\\';
+        foreach (glob(ROOT_DIR . '/Library/Tasks/*.php') as $filePath) {
+            $fullClassName = $namespace . basename($filePath, '.php');
+            if (class_exists($fullClassName)) {
+                $classes[] = $fullClassName;
+            }
+        }
+
+        return $classes;
+    }
 }

@@ -6,7 +6,7 @@ use App\Library\Framework\EnumHelperTrait;
 use BackedEnum;
 
 /**
- * @method static array cases()
+ * @method static BackedEnum[] cases()
  */
 enum EnvironmentsEnum: string {
     use EnumHelperTrait;

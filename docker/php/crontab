@@ -1,0 +1,4 @@
+
+*/2 * * * * root /usr/local/bin/php /var/www/html/src/crontask.php >/dev/null 2>&1
+
+# Не забываем отступ снизу, а то задание на распарсится

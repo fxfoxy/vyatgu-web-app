@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libfcgi-bin \
         libcurl4-openssl-dev \
         curl \
+        cron \
         bash-completion \
     && docker-php-ext-install -j"$(nproc)" pdo_pgsql intl zip \
     && rm -rf /var/lib/apt/lists/*
@@ -34,5 +35,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN groupmod -o -g "${GID}" www-data \
     && usermod -o -u "${UID}" -g "${GID}" www-data
 
+# Копируем распискние задач cron-а
+COPY crontab /etc/cron.d/crontab
+RUN chmod 0644 /etc/cron.d/crontab
+
+# И настраиваем скрипт инициализации
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Код не копируем — он приезжает bind mount'ом из ./app в compose.yaml
 WORKDIR /var/www/html
+
+# Указываем ENTRYPOINT (всегда выполняется при старте)
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

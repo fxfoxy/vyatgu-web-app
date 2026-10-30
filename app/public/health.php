@@ -2,7 +2,7 @@
 
 use App\Library\Database\Database;
 
-require __DIR__ . '/../init.php';
+require __DIR__ . '/../src/init.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

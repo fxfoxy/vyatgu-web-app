@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-require __DIR__ . '/../../init.php';
+require __DIR__ . '/../init.php';
 
 use App\Library\Database\Database;
+use App\Library\Framework\Routing\FeatureControllerMapBuilder;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 
 Database::init();
@@ -23,7 +24,7 @@ if (!$migrationRepository->repositoryExists()) {
 // Получаем список уже выполненных миграций (метод возвращает массив строк)
 $executedMigrations = $migrationRepository->getRan();
 
-$migrationsDir  = __DIR__ . '/../migrations';
+$migrationsDir  = ROOT_DIR . '/migrations';
 $migrationFiles = glob($migrationsDir . '/*.php');
 
 // Получаем номер следующего шага
@@ -34,7 +35,7 @@ foreach ($migrationFiles as $file) {
     $migrationName = basename($file, '.php');
 
     if (!in_array($migrationName, $executedMigrations)) {
-        echo "Запуск миграции: $migrationName... ";
+        echo "Start migration: $migrationName... ";
 
         $migrationInstance = require $file;
         if ($migrationDirection === 'up') {
@@ -46,11 +47,13 @@ foreach ($migrationFiles as $file) {
         // Записываем лог через встроенный метод репозитория
         $migrationRepository->log($migrationName, $nextBatch);
 
-        echo "Успешно!\n";
+        echo "Success!\n";
         $runCount++;
     }
 }
 
 if ($runCount === 0) {
-    echo "База данных в актуальном состоянии.\n";
+    echo "Database is is up to date.\n";
 }
+
+echo FeatureControllerMapBuilder::build(), "\n";

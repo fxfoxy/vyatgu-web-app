@@ -24,7 +24,8 @@ final class Database extends Capsule {
             'schema'    => 'public',
             'prefix'    => '',
             'sslmode'   => 'prefer', // prefer, disable, allow, require
-       ]);
+            'timezone'  => date_default_timezone_get(), //'Europe/Moscow'
+        ]);
 
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
