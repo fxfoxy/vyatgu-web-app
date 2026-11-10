@@ -10,6 +10,7 @@
       "ext-zlib": "*",
       "ext-openssl": "*",
       "ext-uri": "*",
+      "ext-intl": "*",
       "illuminate/database": "^13.0",
       "monolog/monolog": "^3.10"
     },

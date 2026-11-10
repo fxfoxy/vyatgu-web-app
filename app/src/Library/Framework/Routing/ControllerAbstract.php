@@ -3,50 +3,61 @@
 namespace App\Library\Framework\Routing;
 
 use App\Library\Api\View\JsonView;
-use App\Library\Exceptions\RoutingException;
+use App\Library\Exceptions\ApiException;
+use App\Library\Exceptions\ControllerApiException;
+use App\Library\Exceptions\ParametersValidationApiException;
+use App\Library\Exceptions\RequestApiException;
+use App\Library\Exceptions\RoutingApiException;
 use App\Library\Framework\Routing\Generated\FeatureControllerMap;
 use App\Library\Framework\Utils;
 use App\Library\Super;
-use LogicException;
 use Throwable;
 
 class ControllerAbstract {
     public static function processRequest(): void {
-        $request = Request::createFromGlobals();
+        $request = HttpRequest::createFromGlobals();
 
         $currentControllerClassName = self::getCurrentControllerClassName($request);
         $actionName                 = $request->action;
 
         try {
             if (!$currentControllerClassName || !class_exists($currentControllerClassName) || !method_exists($currentControllerClassName, $actionName)) {
-                throw new RoutingException("This combination of class '{$currentControllerClassName}' and method '{$request->action}' does not exist");
+                throw new RoutingApiException("This combination of class '{$currentControllerClassName}' and method '{$request->action}' does not exist");
             }
 
             $actionResult = (new $currentControllerClassName())->$actionName($request);
             if (!$actionResult instanceof ViewAbstract) {
-                throw new LogicException("Controller method '{$currentControllerClassName}::{$actionName}()' did not return a ViewAbstract object");
+                throw new ControllerApiException("Controller method '{$currentControllerClassName}::{$actionName}()' did not return a ViewAbstract object");
             }
         } catch (Throwable $t) {
-            Super::log()->warning($t->getMessage());
+            Super::log()->warning(trim(Utils::getClassSimpleName($t::class) . ' ' . $t->getMessage()));
             $actionResult = static::getExceptionActionResult($request, $t);
         } finally {
             $actionResult->sendHeadersAndRender();
         }
     }
 
-    protected static function getExceptionActionResult(Request $request, Throwable $t): ViewAbstract {
+    protected static function getExceptionActionResult(HttpRequest $request, Throwable $t): ViewAbstract {
         $exceptionResult = new JsonView(['error' => 'Server error :(']);
         $exceptionResult->setResponseCode(500);
 
-        if ($t instanceof RoutingException || $t instanceof LogicException) {
-            $exceptionResult = new JsonView(['error' => 'Unprocessable request']);
+        if ($t instanceof ApiException) {
+            $errors = [
+                'error' => $t instanceof RequestApiException ? $t->getMessage() : 'Unprocessable API request'
+            ];
+
+            if ($t instanceof ParametersValidationApiException) {
+                $errors['parameter_errors'] = $t->getErrors();
+            }
+
+            $exceptionResult = new JsonView($errors);
             $exceptionResult->setResponseCode(400);
         }
 
         return $exceptionResult;
     }
 
-    private static function getCurrentControllerClassName(Request $request): ?string {
+    private static function getCurrentControllerClassName(HttpRequest $request): ?string {
         if (!$request->feature || !$request->controller) {
             Super::log()->warning('Empty URI parts');
             return null;

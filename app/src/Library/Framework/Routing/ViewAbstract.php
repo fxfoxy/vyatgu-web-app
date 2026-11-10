@@ -3,7 +3,7 @@
 namespace App\Library\Framework\Routing;
 
 abstract class ViewAbstract {
-    private int $httpResponseCode = 200;
+    protected int $httpResponseCode = 200;
 
     private array $httpResponseHeaders = [];
 

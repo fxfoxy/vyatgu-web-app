@@ -2,7 +2,5 @@
 
 namespace App\Library\Exceptions;
 
-use Exception;
-
-class RoutingException extends Exception {
+class RequestApiException extends ApiException {
 }

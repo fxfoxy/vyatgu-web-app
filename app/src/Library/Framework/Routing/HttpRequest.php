@@ -2,17 +2,19 @@
 
 namespace App\Library\Framework\Routing;
 
+use App\Library\Exceptions\RequestMethodApiException;
 use App\Library\Framework\Utils;
 use App\Library\Super;
 use JsonException;
 use Uri\WhatWg\Url;
 
-class Request {
+class HttpRequest {
     public readonly ?string $feature;
     public readonly ?string $controller;
     public readonly string $action;
 
-    private array $data;
+    private array $unverifiedData;
+    private string $requestMethod;
 
     private function __construct(?string $feature, ?string $controller, ?string $action) {
         // Папки и классы именуем с заглавной
@@ -20,9 +22,11 @@ class Request {
         $this->controller = ucfirst($controller) . 'Controller';
         $this->action     = ($action ?? 'index') . 'Action';
 
-        $this->data = $_GET;
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->data = array_merge($this->data, $this->getJsonPostData());
+        $this->requestMethod = $_SERVER['REQUEST_METHOD'];
+
+        $this->unverifiedData = $_GET;
+        if ($this->requestMethod === HttpMethodsEnum::POST->value) {
+            $this->unverifiedData = $this->getJsonPostData();
         }
     }
 
@@ -47,8 +51,21 @@ class Request {
         );
     }
 
-    public function getData() {
-        return $this->data;
+    /**
+     * Получить данные по запросу как есть, без всяких проверок
+     */
+    public function getUnverifiedData(): array {
+        return $this->unverifiedData;
+    }
+
+    public function getUnverifiedParameter(string $parameterName): mixed {
+        return $this->unverifiedData[$parameterName] ?? null;
+    }
+
+    public function requireHttpMethod(HttpMethodsEnum $httpMethod): void {
+        if ($this->requestMethod !== $httpMethod->value) {
+            throw new RequestMethodApiException("Expecting {$httpMethod->value} request method");
+        }
     }
 
     /**
