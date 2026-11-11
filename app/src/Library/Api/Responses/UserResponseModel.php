@@ -9,7 +9,9 @@ final class UserResponseModel {
         return [
             'user_id'          => $user->user_id,
             'email'            => $user->email,
+            'name'             => $user->name,
             'created_datetime' => $user->created_datetime->format('c'),
+            'updated_datetime' => $user->updated_datetime?->format('c'),
         ];
     }
 }

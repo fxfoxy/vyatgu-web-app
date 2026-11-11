@@ -29,10 +29,18 @@ final class FrontendController extends ControllerAbstract {
         return new JsonView(UserResponseModel::getInfo($authRequest->getUser()));
     }
 
+    public function userAction(HttpRequest $request): ViewAbstract {
+        $request->requireHttpMethod(HttpMethodsEnum::GET);
+        $user = UserAuth::requireAuthUser();
+
+        return new JsonView(UserResponseModel::getInfo($user));
+    }
+
     public function logoutAction(HttpRequest $request): ViewAbstract {
         $request->requireHttpMethod(HttpMethodsEnum::GET);
         UserAuth::requireAuthUser();
         UserAuth::logout();
+
         return new JsonView([]);
     }
 }
