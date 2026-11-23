@@ -3,3 +3,6 @@
 /app/src/logs
 /.idea/*
 /app/src/Library/Framework/Routing/Generated/*
+
+# Сборка фронтенда (frontend/): npm run build кладёт её в app/public/dist/
+/app/public/dist
